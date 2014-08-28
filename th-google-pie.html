@@ -15,7 +15,7 @@ Element providing a Thelma wrapper for the Google geochart.
 @status alpha
 @homepage http://nishacodes.github.io/th-google-regions
 -->
-<polymer-element name="th-google-pie"  extends="th-animated" attributes="chartWidth type chartHeight chartData dataLabel color backgroundColor displayMode legend">
+<polymer-element name="th-google-pie"  extends="th-animated" attributes="chartWidth type chartHeight chartData dataLabel color backgroundColor legend">
   <core-style ref="theme"></core-style>
   <style>
 
@@ -47,7 +47,7 @@ Element providing a Thelma wrapper for the Google geochart.
       chartData: [
         {"label": "Germany", "value": 100},
         {"label": "Switzerland", "value": 50},
-        {"label": "France", "value": 300, "slice": 0.2},
+        {"label": "France", "value": 300, "split": 0.2},
         {"label": "Austria", "value": 200},
         {"label": "Netherlands", "value": 500}
       ],
@@ -82,12 +82,6 @@ Element providing a Thelma wrapper for the Google geochart.
        * @type {String}
        */
       color: "",
-      /**
-       * 'displayMode' refers to how the data gets displayed
-       * @type {String}
-       * @options 'fill', 'markers', 'text'
-       */
-      displayMode: "fill",
       /**
        * 'legend' determines whether or not to display a legend
        * @type {Boolean}
@@ -133,10 +127,10 @@ Element providing a Thelma wrapper for the Google geochart.
 
         self._slices = self.chartData.map(function(item, index) {
           item.color = self.getColors().theme.allAccents[index];
-          item.offset = item.slice;
+          item.offset = item.split;
           delete item.label;
           delete item.value;
-          delete item.slice;
+          delete item.split;
           return item;
         });
 
@@ -156,7 +150,6 @@ Element providing a Thelma wrapper for the Google geochart.
         // Define chart options 
         self.options = {
           tooltip: { trigger: 'selection', textStyle: { color: colors.theme.background, fontName: colors.theme.font, fontSize: '0.85em'}},
-          displayMode: self.displayMode,
           colorAxis: { colors: [self.color] },
           backgroundColor: {fill: self.backgroundColor},
           chartArea:{width:'80%',height:'80%'},
