@@ -110,10 +110,6 @@ Element providing a Thelma wrapper for the Google geochart.
         self.reformatData();
         self.configureOptions();
       },
-      //NOT WORKING?!?! remove
-      chartReady: function() {
-        console.log('chart ready');
-      },
       /**
        * 'reformatData' converts chartData into the correct data structure for the map
        */
@@ -122,17 +118,10 @@ Element providing a Thelma wrapper for the Google geochart.
         self._data = self.chartData.map(function(item){
           return [item.label, item.value];
         });
+
         self._data.unshift(["Data Point", self.dataLabel]);
 
 
-        self._slices = self.chartData.map(function(item, index) {
-          item.color = self.getColors().theme.allAccents[index];
-          item.offset = item.split;
-          delete item.label;
-          delete item.value;
-          delete item.split;
-          return item;
-        });
 
        
       },
@@ -146,6 +135,16 @@ Element providing a Thelma wrapper for the Google geochart.
         self.color = self.color || colors.accents[0];
         self.backgroundColor = self.backgroundColor || "none";
         self.minValue = self.minValue || 0;
+
+        self._slices = self.chartData.map(function(item, index) {
+          item.color = colors.accents[index];
+          item.offset = item.split;
+          delete item.label;
+          delete item.value;
+          delete item.split;
+          return item;
+        });
+
 
         // Define chart options 
         self.options = {
@@ -167,13 +166,11 @@ Element providing a Thelma wrapper for the Google geochart.
           pieHole: self.type == 'donut' ? 0.4 : 0
         };
 
-        console.log(self.options);
 
         if (!self.legend) { self.options.legend = 'none';}
         
          // var google = self.$.googleChart.$.chartdiv.querySelectorAll('div');
         // var chart = google.$.chartdiv;
-        // console.log(google);
       },
       /**
        * 'getColors' gets the color theme from the global scope
