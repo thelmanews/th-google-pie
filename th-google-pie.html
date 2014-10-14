@@ -148,6 +148,8 @@ Element providing a Thelma wrapper for the Google geochart.
 
         // Define chart options 
         self.options = {
+          height: self.chartHeight,
+          width: self.chartWidth,
           tooltip: { trigger: 'selection', textStyle: { color: "black", fontName: colors.theme.font, fontSize: '0.85em'}},
           colorAxis: { colors: [self.color] },
           backgroundColor: {fill: self.backgroundColor},
