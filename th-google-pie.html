@@ -15,7 +15,7 @@ Element providing a Thelma wrapper for the Google geochart.
 @status alpha
 @homepage http://nishacodes.github.io/th-google-regions
 -->
-<polymer-element name="th-google-pie"  extends="th-animated" attributes="chartWidth type chartHeight chartData dataLabel color backgroundColor legend">
+<polymer-element name="th-google-pie"  extends="th-animated" attributes="tooltipText chartWidth type chartHeight chartData dataLabel color backgroundColor legend">
   <core-style ref="theme"></core-style>
   <style>
 
@@ -92,7 +92,15 @@ Element providing a Thelma wrapper for the Google geochart.
        * @type {String}
        * @example: '.##'
        */
-      numberFormat: "",     
+      numberFormat: "",
+      /**
+       * tooltipText' reders to which values get shown in the tooltip
+       * @type {String}
+       * @options: 'both' - value & percent
+       *           'value' - only value
+       *           'percentage' - only percent
+       */
+      tooltipText: 'both',     
       ready: function() {
         var self = this;
         console.log(self.$.googleChart);
@@ -150,7 +158,7 @@ Element providing a Thelma wrapper for the Google geochart.
         self.options = {
           height: self.chartHeight,
           width: self.chartWidth,
-          tooltip: { trigger: 'selection', textStyle: { color: "black", fontName: colors.theme.font, fontSize: '0.85em'}},
+          tooltip: { trigger: 'selection', text: self.tooltipText, textStyle: { color: "black", fontName: colors.theme.font, fontSize: '0.85em'}},
           colorAxis: { colors: [self.color] },
           backgroundColor: {fill: self.backgroundColor},
           chartArea:{width:'80%',height:'80%'},
