@@ -23,8 +23,8 @@ Element providing a Thelma wrapper for the Google geochart.
   <template> 
     <google-chart id="googleChart" on-google-chart-render="{{chartReady}}"
           type='pie'
-          height="{{chartHeight}}"
-          width="{{chartWidth}}"
+          height="{{computedHeight}}"
+          width="{{computedWidth}}"
           options= "{{options}}"
           data="{{_data}}">
     </google-chart>
@@ -66,12 +66,12 @@ Element providing a Thelma wrapper for the Google geochart.
        * 'chartWidth' refers to the width of the element container
        * @type {Number}
        */
-      chartWidth: 280,
+      chartWidth: '280',
       /**
        * 'chartHeight' refers to the height of the element container
        * @type {Number}
        */
-      chartHeight: 400,
+      chartHeight: '400',
       /**
        * 'backgroundColor' refers to the background color of the container
        * @type {String}
@@ -103,8 +103,9 @@ Element providing a Thelma wrapper for the Google geochart.
       tooltipText: 'both',     
       ready: function() {
         var self = this;
-        console.log(self.$.googleChart);
-        
+        self.computedHeight = self.computeHeight(self.chartHeight);
+        self.computedWidth = self.computeWidth(self.chartWidth);
+       
         //NOT WORKING?!?! remove
         self.$.googleChart.addEventListener('google-chart-render',function() {
           console.log('render');
@@ -156,8 +157,8 @@ Element providing a Thelma wrapper for the Google geochart.
 
         // Define chart options 
         self.options = {
-          height: self.chartHeight,
-          width: self.chartWidth,
+          height: self.computedHeight,
+          width: self.computedWidth,
           tooltip: { trigger: 'selection', text: self.tooltipText, textStyle: { color: "black", fontName: colors.theme.font, fontSize: '0.85em'}},
           colorAxis: { colors: [self.color] },
           backgroundColor: {fill: self.backgroundColor},
