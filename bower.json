@@ -8,7 +8,8 @@
   ],
   "main": "th-google-regions.html",
   "dependencies": {
-    "polymer": "Polymer/polymer#~0.3.5",
+    "polymer": "Polymer/polymer#~0.5.1",
+    "th-animated": "https://github.com/thelmanews/th-animated.git",
     "google-chart": "GoogleWebComponents/google-chart#master"
   }
 }
