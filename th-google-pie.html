@@ -24,10 +24,8 @@ Element providing a Thelma wrapper for the Google geochart.
       }
     </style>
   
-    <google-chart id="googleChart" on-google-chart-render="{{chartReady}}"
+    <google-chart id="googleChart" on-google-chart-render="{{chartReady}}" style="width:100%; height: 100%;"
           type='pie'
-          height="{{computedHeight}}"
-          width="{{computedWidth}}"
           options= "{{options}}"
           data="{{_data}}">
     </google-chart>
@@ -96,9 +94,7 @@ Element providing a Thelma wrapper for the Google geochart.
       tooltipText: 'both',     
       ready: function() {
         var self = this;
-        self.computedHeight = self.computeHeight();
-        self.computedWidth = self.computeWidth();
-       
+        
         self.reformatData();
         self.configureOptions();
       },
@@ -137,8 +133,6 @@ Element providing a Thelma wrapper for the Google geochart.
 
         // Define chart options 
         self.options = {
-          height: self.computedHeight,
-          width: self.computedWidth,
           tooltip: { trigger: 'selection', text: self.tooltipText, textStyle: { color: "black", fontName: colors.theme.font, fontSize: '0.85em'}},
           colorAxis: { colors: [self.color] },
           backgroundColor: {fill: self.backgroundColor},
