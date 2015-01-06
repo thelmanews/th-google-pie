@@ -18,10 +18,7 @@ Element providing a Thelma wrapper for the Google geochart.
   <template> 
     <core-style ref="theme"></core-style>
     <style>
-      :host {
-        width: 280px;
-        height: 400px;
-      }
+
     </style>
   
     <google-chart id="googleChart" on-google-chart-render="{{chartReady}}" selection="{{selection}}" style="width:100%; height: 100%;"
@@ -171,6 +168,13 @@ Element providing a Thelma wrapper for the Google geochart.
        */
       selectionChanged: function() {
         this.output = (this.selection[0] && this.selection[0].row) ? this.chartData[this.selection[0].row] : null;
+      },
+      /**
+       * called when resized
+       * @return {[None]} 
+       */
+      resize: function() {
+        this.$.googleChart.drawChart();
       },
 
       /**
