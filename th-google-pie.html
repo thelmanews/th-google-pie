@@ -15,11 +15,14 @@ Element providing a Thelma wrapper for the Google geochart.
 @status alpha
 @homepage http://nishacodes.github.io/th-google-regions
 -->
-<polymer-element name="th-google-pie"  extends="th-d3-chart" attributes="input output tooltipText type chartData dataLabel color backgroundColor legend">
+<polymer-element name="th-google-pie"  extends="th-d3-chart" attributes="input output tooltipText type chartData dataLabel color backgroundColor legend showOptions selectedLabel selectedValue labelValueSelection">
   <template> 
     <core-style ref="theme"></core-style>
     <th-data-utility id="utility"></th-data-utility>
-    <th-u-data-selector id="data_selector" input="{{chartData}}" selections="{{labelValueSelection}}"  ></th-u-data-selector>
+    <th-u-data-selector id="data_selector" input="{{chartData}}" selections="{{labelValueSelection}}" selectionSettings='[
+        {"name": "label", "type": "any", "multi": false},
+        {"name": "value", "type": "numerical", "multi": false}
+      ]' style="display: {{showOptions | displayFilter}}"></th-u-data-selector>
  
     <google-chart id="googleChart" on-google-chart-render="{{chartReady}}" selection="{{selection}}" style="width:100%; height: 100%;"
           type='pie'
@@ -31,7 +34,6 @@ Element providing a Thelma wrapper for the Google geochart.
   <script>
 
     Polymer('th-google-pie', {
-
       /**
        ** 'chartData' is the data represented by the map. 
        * @type {Array}
@@ -82,13 +84,18 @@ Element providing a Thelma wrapper for the Google geochart.
        */
       numberFormat: "",
       /**
-       * tooltipText' reders to which values get shown in the tooltip
+       * 'tooltipText' reders to which values get shown in the tooltip
        * @type {String}
        * @options: 'both' - value & percent
        *           'value' - only value
        *           'percentage' - only percent
        */
       tooltipText: 'both', 
+      /**
+       * 'showOptions' is a toggle for whether chart options are displayed or not
+       * @type {Boolean}
+       */
+      showOptions: true,
       observe: {
         selection: "selectionChanged"
       },    
@@ -96,16 +103,9 @@ Element providing a Thelma wrapper for the Google geochart.
         var self = this;
         
         self.reformatData();
-        this.$.data_selector.addEventListener('th-data-selection-changed', function() {
-
-          this.labelValueSelection = this.$.data_selector.selections;
-
-          this.selectedLabel = this.labelValueSelection[0];
-          this.selectedValue = this.labelValueSelection[1][0];
-
-          this.reformatData();
-
-        }.bind(this));
+        self.$.data_selector.addEventListener('th-data-selection-changed', function() {
+          self.updateSelections();
+        }.bind(self));
         
         self.configureOptions();
       },
@@ -120,30 +120,31 @@ Element providing a Thelma wrapper for the Google geochart.
         }
 
         self._data = self.input.map(function(item){
-          // return [item.label, item.value];
           var row = [];
-          console.log(item);
           row.push(item[self.labelValueSelection[0]]);
-          
-          
-            
-            var unformattedValue = self.$.utility.unformatString(item[self.labelValueSelection[1][0]]);
-            
+            var unformattedValue = self.$.utility.unformatString(item[self.labelValueSelection[1]]);
             row.push(unformattedValue);
-          
           return row;
         });
 
-        //TODO: does this doe anything? or just copied here from th-google-region code? remove?
-        self._data.unshift(["Data Point", self.labelValueSelection[1][0]]);
+        self._data.unshift(["Data Point", self.labelValueSelection[1]]);
    
       },
+
       /**
        * Overrides th-d3-chart function. called by observers when input or chartData changes
        * @return {[type]} [description]
        */
       updateData: function() {
-        this.reformatData();
+        var self = this;
+        self.reformatData();
+      },
+      updateSelections: function(){
+        var self = this;
+        self.labelValueSelection = self.$.data_selector.selections;
+        self.selectedLabel = self.labelValueSelection[0];
+        self.selectedValue = self.labelValueSelection[1];
+        self.reformatData();
       },
       /**
        * 'configureOptions' sets the appropriate options properties for the map, given the attribute values
@@ -159,12 +160,8 @@ Element providing a Thelma wrapper for the Google geochart.
         self._slices = self.chartData.map(function(item, index) {
           item.color = colors.accents[index];
           item.offset = item.split;
-          // delete item.label;
-          // delete item.value;
-          // delete item.split;
           return item;
         });
-
 
         // Define chart options 
         self.options = {
@@ -195,6 +192,7 @@ Element providing a Thelma wrapper for the Google geochart.
        * @return {[type]}       [description]
        */
       selectionChanged: function() {
+
         this.output = (this.selection[0] && this.selection[0].row) ? this.chartData[this.selection[0].row] : null;
       },
       /**
@@ -229,14 +227,14 @@ Element providing a Thelma wrapper for the Google geochart.
           this.$.data_selector.selections[0] = this.selectedLabel;
 
       },
-
       selectedValueChanged: function() {
           //if selectedValue changed from outside, set the internal data_selector
           this.$.data_selector.selections[1] = this.selectedValue;
 
       },
-
-
+      displayFilter: function(value){
+        return value ? "inline-block" : "none";
+      }
     });
 
   
