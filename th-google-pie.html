@@ -8,12 +8,12 @@ Element providing a Thelma wrapper for the Google geochart.
 
 ##### Example
 
-    <th-google-regions regionCode="155" resolution="countries" color="blue"></th-google-regions>
+    <th-google-pie></th-google-pie>
 
-@element th-google-regions
+@element th-google-pie
 @blurb Element providing a Thelma wrapper for the Google geochart.
 @status alpha
-@homepage http://nishacodes.github.io/th-google-regions
+@homepage http://nishacodes.github.io/th-google-pie
 -->
 <polymer-element name="th-google-pie"  extends="th-d3-chart" attributes="input output tooltipText type chartData dataLabel color backgroundColor legend showOptions selectedLabel selectedValue labelValueSelection">
   <template> 
@@ -34,16 +34,6 @@ Element providing a Thelma wrapper for the Google geochart.
   <script>
 
     Polymer('th-google-pie', {
-      /**
-       ** 'chartData' is the data represented by the map. 
-       * @type {Array}
-       *
-       ** 'region' can be a country, state, or metro 
-       * @type {String}
-       *
-       ** 'value' determines the color of the marker or fill
-       * @type {Number}
-       */
       chartData: [
         {"label": "Germany", "value": 100},
         {"label": "Switzerland", "value": 50},
@@ -67,11 +57,6 @@ Element providing a Thelma wrapper for the Google geochart.
        * @type {String}
        */
       backgroundColor: "",
-      /**
-       * 'color' determines the range of the fill color of the regions
-       * @type {String}
-       */
-      color: "",
       /**
        * 'legend' determines whether or not to display a legend
        * @type {Boolean}
