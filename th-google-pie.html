@@ -18,6 +18,7 @@ Element providing a Thelma wrapper for the Google geochart.
 <polymer-element name="th-google-pie"  extends="th-d3-chart" attributes="input output tooltipText type chartData dataLabel backgroundColor legend showOptions selectedLabel selectedValue labelValueSelection chartTitle fontSize pieHole pieSliceText is3D">
   <template> 
     <core-style ref="theme"></core-style>
+    <link rel="stylesheet" href="th-google-pie.css">
     <th-data-utility id="utility"></th-data-utility>
     <th-u-data-selector id="data_selector" input="{{chartData}}" selections="{{labelValueSelection}}" selectionSettings='[
         {"name": "label", "type": "any", "multi": false},
