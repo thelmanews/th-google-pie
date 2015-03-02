@@ -15,7 +15,7 @@ Element providing a Thelma wrapper for the Google geochart.
 @status alpha
 @homepage http://nishacodes.github.io/th-google-pie
 -->
-<polymer-element name="th-google-pie"  extends="th-d3-chart" attributes="input output tooltipText type chartData dataLabel backgroundColor legend showOptions selectedLabel selectedValue labelValueSelection chartTitle fontSize pieHole pieSliceText is3D">
+<polymer-element name="th-google-pie"  extends="th-d3-chart" attributes="input output tooltipText type chartData dataLabel backgroundColor legend showOptions selectedLabel selectedValue labelValueSelection chartTitle fontSize pieHole pieSliceText is3D textColor">
   <template> 
     <core-style ref="theme"></core-style>
     <link rel="stylesheet" href="th-google-pie.css">
@@ -95,7 +95,8 @@ Element providing a Thelma wrapper for the Google geochart.
         is3D: "updateOptions",
         legend: "updateOptions",
         type: "updateOptions",
-        backgroundColor: "updateOptions"
+        backgroundColor: "updateOptions",
+        textColor: "updateOptions"
       },    
       ready: function() {
         var self = this;
@@ -163,7 +164,7 @@ Element providing a Thelma wrapper for the Google geochart.
         
         var fgColor = self.textColor || colors.theme.foreground1 || "black";
         var bgColor = self.backgroundColor || colors.theme.background || "none";
-
+        
         self._slices = self.chartData.map(function(item, index) {
           item.color = colors.accents[index];
           item.offset = item.split;
@@ -180,6 +181,7 @@ Element providing a Thelma wrapper for the Google geochart.
           chartArea:{width:'80%',height:'80%'},
           is3D: self.is3D,
           pieSliceText: self.pieSliceText,
+          pieSliceTextStyle: {color: fgColor, fontName: colors.theme.font},
           legend: { 
             numberFormat: self.numberFormat,
             textStyle: { 
@@ -260,6 +262,7 @@ Element providing a Thelma wrapper for the Google geochart.
             "type": {"friendly":"Type", "type": "dropdown", "default": "pie", "values":["pie", "donut"]},
             "pieHole": {"friendly":"Pie Hole Size (for donut only)", "type":"range", "default":0.4, "range":[0,1], "step":0.1},
             "fontSize":{"friendly":"Font Size", "type":"int", "default":""},
+            "textColor":{"friendly":"Text Color", "type":"color", "default":""},
             "tooltipText": {"friendly":"Tooltip Text", "type": "dropdown", "default": "both", "values":["both", "value", "percentage"]},
             "pieSliceText": {"friendly":"Pie Slice Text", "type": "dropdown", "default": "percentage", "values":["percentage", "value", "label", "none"]},
             "backgroundColor":{"friendly":"Background Color", "type":"color", "default":""},
