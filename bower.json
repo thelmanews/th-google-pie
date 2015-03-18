@@ -9,7 +9,7 @@
   "main": "th-google-pie.html",
   "dependencies": {
     "polymer": "Polymer/polymer#~0.5.1",
-    "th-animated": "https://github.com/thelmanews/th-animated.git",
+    "th-d3-chart": "thelmanews/th-d3-chart",
     "google-chart": "lenses/google-chart#master",
     "th-u-data-selector": "thelmanews/th-u-data-selector",
     "th-data-utility": "thelmanews/th-data-utility"
