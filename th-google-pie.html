@@ -1,31 +1,27 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../th-animated/th-animated.html">
 <link rel="import" href="../google-chart/google-chart.html">
-<link rel="import" href="../th-u-data-selector/th-u-data-selector.html">
-<link rel="import" href="../th-data-utility/th-data-utility.html">
+
 <!--
 Element providing a Thelma wrapper for the Google geochart.
 
 ##### Example
 
-    <th-google-pie></th-google-pie>
+    <th-google-regions regionCode="155" resolution="countries" color="blue"></th-google-regions>
 
-@element th-google-pie
+@element th-google-regions
 @blurb Element providing a Thelma wrapper for the Google geochart.
 @status alpha
-@homepage http://nishacodes.github.io/th-google-pie
+@homepage http://nishacodes.github.io/th-google-regions
 -->
-<polymer-element name="th-google-pie"  extends="th-d3-chart" attributes="input output tooltipText type chartData dataLabel backgroundColor legend showOptions selectedLabel selectedValue labelValueSelection chartTitle fontSize pieHole pieSliceText is3D textColor">
+<polymer-element name="th-google-pie"  extends="th-d3-chart" attributes="input output tooltipText type chartData dataLabel color backgroundColor legend">
   <template> 
     <core-style ref="theme"></core-style>
-    <link rel="stylesheet" href="th-google-pie.css">
-    <th-data-utility id="utility"></th-data-utility>
-    <th-u-data-selector id="data_selector" input="{{chartData}}" selections="{{labelValueSelection}}" selectionSettings='[
-        {"name": "label", "type": "any", "multi": false},
-        {"name": "value", "type": "numerical", "multi": false}
-      ]' style="display: {{showOptions | displayFilter}};  height: 10%;"></th-u-data-selector>
- 
-    <google-chart id="googleChart" on-google-chart-render="{{chartReady}}" selection="{{selection}}" style="width:100%; height: {{showOptions | heightFilter}};"
+    <style>
+
+    </style>
+  
+    <google-chart id="googleChart" on-google-chart-render="{{chartReady}}" selection="{{selection}}" style="width:100%; height: 100%;"
           type='pie'
           options= "{{options}}"
           data="{{_data}}">
@@ -35,6 +31,17 @@ Element providing a Thelma wrapper for the Google geochart.
   <script>
 
     Polymer('th-google-pie', {
+
+      /**
+       ** 'chartData' is the data represented by the map. 
+       * @type {Array}
+       *
+       ** 'region' can be a country, state, or metro 
+       * @type {String}
+       *
+       ** 'value' determines the color of the marker or fill
+       * @type {Number}
+       */
       chartData: [
         {"label": "Germany", "value": 100},
         {"label": "Switzerland", "value": 50},
@@ -59,6 +66,11 @@ Element providing a Thelma wrapper for the Google geochart.
        */
       backgroundColor: "",
       /**
+       * 'color' determines the range of the fill color of the regions
+       * @type {String}
+       */
+      color: "",
+      /**
        * 'legend' determines whether or not to display a legend
        * @type {Boolean}
        */
@@ -70,90 +82,41 @@ Element providing a Thelma wrapper for the Google geochart.
        */
       numberFormat: "",
       /**
-       * 'tooltipText' reders to which values get shown in the tooltip
+       * tooltipText' reders to which values get shown in the tooltip
        * @type {String}
        * @options: 'both' - value & percent
        *           'value' - only value
        *           'percentage' - only percent
        */
       tooltipText: 'both', 
-      /**
-       * 'showOptions' is a toggle for whether chart options are displayed or not
-       * @type {Boolean}
-       */
-      showOptions: true,
-      pieHole: 0.4,
-      is3D: false,
-      pieSliceText: 'percentage',
       observe: {
-        selection: "selectionChanged",
-        chartTitle: "updateOptions",
-        fontSize: "updateOptions",
-        tooltipText: "updateOptions",
-        pieHole: "updateOptions",
-        pieSliceText: "updateOptions",
-        is3D: "updateOptions",
-        legend: "updateOptions",
-        type: "updateOptions",
-        backgroundColor: "updateOptions",
-        textColor: "updateOptions"
+        selection: "selectionChanged"
       },    
       ready: function() {
         var self = this;
         
-        // Listen for theme changes
-        document.addEventListener('th-theme-changed', function(e) {
-          this.getColors();
-          this.updateOptions();
-        }.bind(this));
-
         self.reformatData();
-        self.$.data_selector.addEventListener('th-data-selection-changed', function() {
-          self.updateSelections();
-        }.bind(self));
-        
         self.configureOptions();
       },
       /**
        * 'reformatData' converts chartData into the correct data structure for the map
        */
       reformatData: function(){
-        var self = this; 
-
-        if(!self.labelValueSelection || !self.labelValueSelection[0] || !self.labelValueSelection[1]) {
-          return;
-        }
-
-        self._data = self.input.map(function(item){
-          var row = [];
-          row.push(item[self.labelValueSelection[0]]);
-            var unformattedValue = self.$.utility.unformatString(item[self.labelValueSelection[1]]);
-            row.push(unformattedValue);
-          return row;
+        var self = this;        
+        self._data = self.chartData.map(function(item){
+          return [item.label, item.value];
         });
 
-        self._data.unshift(["Data Point", self.labelValueSelection[1]]);
+        //TODO: does this doe anything? or just copied here from th-google-region code? remove?
+        self._data.unshift(["Data Point", self.dataLabel]);
    
       },
-
       /**
        * Overrides th-d3-chart function. called by observers when input or chartData changes
        * @return {[type]} [description]
        */
       updateData: function() {
-        var self = this;
-        self.reformatData();
-      },
-      updateSelections: function(){
-        var self = this;
-        self.labelValueSelection = self.$.data_selector.selections;
-        self.selectedLabel = self.labelValueSelection[0];
-        self.selectedValue = self.labelValueSelection[1];
-        self.reformatData();
-      },
-      updateOptions: function(){
-        this.configureOptions();
-        this.$.googleChart.drawChart();
+        this.reformatData();
       },
       /**
        * 'configureOptions' sets the appropriate options properties for the map, given the attribute values
@@ -161,20 +124,87 @@ Element providing a Thelma wrapper for the Google geochart.
       configureOptions: function(){
         var self = this,
             colors =  self.getColors();
-        
-        var fgColor = self.textColor || colors.theme.foreground1 || "black";
-        var bgColor = self.backgroundColor || colors.theme.background || "none";
-        
+        // Determine intermediate variables
+        self.color = self.color || colors.accents[0];
+        self.backgroundColor = self.backgroundColor || "none";
+        self.minValue = self.minValue || 0;
+
         self._slices = self.chartData.map(function(item, index) {
           item.color = colors.accents[index];
           item.offset = item.split;
+          // delete item.label;
+          // delete item.value;
+          // delete item.split;
           return item;
         });
 
+
         // Define chart options 
         self.options = {
-          title: self.chartTitle,
-          titleTextStyle: { color: fgColor, fontName: colors.theme.font, fontSize: self.fontSize*1.5},
+          tooltip: { trigger: 'selection', text: self.tooltipText, textStyle: { color: "black", fontName: colors.theme.font, fontSize: '0.85em'}},
+          colorAxis: { colors: [self.color] },
+          backgroundColor: {fill: self.backgroundColor},
+          chartArea:{width:'80%',height:'80%'},
+          legend: { 
+            numberFormat: self.numberFormat,
+            textStyle: { 
+              color: colors.theme.foreground1, 
+              fontName: colors.theme.font, 
+              fontSize: '0.85em',
+              stroke: 'none',
+              strokeWidth: '0'            
+            } 
+          },
+          slices : self._slices,
+          pieHole: self.type == 'donut' ? 0.4 : 0
+        };
+
+        if (!self.legend) { self.options.legend = 'none';}
+        
+      },
+      /**
+       * converts google chart selection to row from chartData
+       * @param  {[type]} value [description]
+       * @return {[type]}       [description]
+       */
+      selectionChanged: function() {
+        this.output = (this.selection[0] && this.selection[0].row) ? this.chartData[this.selection[0].row] : null;
+      },
+      /**
+       * called when resized
+       * @return {[None]} 
+       */
+      resize: function() {
+        this.$.googleChart.drawChart();
+      },
+
+      /**
+       * 'getColors' gets the color theme from the global scope
+       * @return {Object}
+       */
+      getColors: function(){
+        colors = {};
+        colors.theme = window.CoreStyle.g.theme;
+        colors.accents = [];
+
+        for (var color in colors.theme){
+          if(/^accent/.test(color)){
+            colors.accents.push(colors.theme[color]);
+          }
+        }
+
+        colors.count = colors.accents.length;
+
+        return colors;
+      }
+
+    });
+
+  
+  </script>
+
+</polymer-element>
+ize*1.5},
           fontSize: self.fontSize,
           tooltip: { trigger: 'selection', text: self.tooltipText, textStyle: { color: "black", fontName: colors.theme.font, fontSize: '0.85em'}},
           backgroundColor: {fill: bgColor},
