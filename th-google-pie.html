@@ -1,6 +1,7 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../th-animated/th-animated.html">
 <link rel="import" href="../google-chart/google-chart.html">
+<link rel="import" href="../th-data-utility/th-data-utility.html">
 
 <!--
 Element providing a Thelma wrapper for the Google geochart.
@@ -14,17 +15,15 @@ Element providing a Thelma wrapper for the Google geochart.
 @status alpha
 @homepage http://nishacodes.github.io/th-google-regions
 -->
-<polymer-element name="th-google-pie"  extends="th-d3-chart" attributes="input output tooltipText type chartData dataLabel color backgroundColor legend">
+<polymer-element name="th-google-pie"  extends="th-d3-chart" attributes="input output tooltipText type chartData dataLabel color backgroundColor legend numberPattern chartAreaWidth chartAreaHeight">
   <template> 
     <core-style ref="theme"></core-style>
-    <style>
-
-    </style>
-  
+    <th-data-utility id="utility"></th-data-utility>  
     <google-chart id="googleChart" on-google-chart-render="{{chartReady}}" selection="{{selection}}" style="width:100%; height: 100%;"
           type='pie'
           options= "{{options}}"
-          data="{{_data}}">
+          data="{{_data}}"
+          numberFormats="{{numberFormats}}">
     </google-chart>
   </template>
 
@@ -49,6 +48,16 @@ Element providing a Thelma wrapper for the Google geochart.
         {"label": "Austria", "value": 200},
         {"label": "Netherlands", "value": 500}
       ],
+      /**
+       * 'chartAreaWidth' refers to the width of the chartarea svg
+       * @type {Number}
+       */
+      chartAreaWidth: '80%',
+      /**
+       * 'chartAreaHeight' refers to the height of the chartarea container
+       * @type {Number}
+       */
+      chartAreaHeight: '80%',
       /**
        * Data label for values assigned to states
        * @type {String}
@@ -76,21 +85,17 @@ Element providing a Thelma wrapper for the Google geochart.
        */
       legend: false,
       /**
-       * 'numberFormat' refers to the number format of the legend min and max
-       * @type {String}
-       * @example: '.##'
-       */
-      numberFormat: "",
-      /**
        * tooltipText' reders to which values get shown in the tooltip
        * @type {String}
        * @options: 'both' - value & percent
        *           'value' - only value
        *           'percentage' - only percent
        */
-      tooltipText: 'both', 
+      tooltipText: 'both',
+      numberPattern: "", 
       observe: {
-        selection: "selectionChanged"
+        selection: "selectionChanged",
+        numberPattern:  "updateData",
       },    
       ready: function() {
         var self = this;
@@ -103,12 +108,25 @@ Element providing a Thelma wrapper for the Google geochart.
        */
       reformatData: function(){
         var self = this;        
-        self._data = self.chartData.map(function(item){
-          return [item.label, item.value];
+        self._data = self.chartData.map(function(item, index){
+          if (index === 0){
+              // Extract the number format of the first row of data and apply to tooltips
+              var format = self.$.utility.extractNumberFormat(item.value);
+              if (format){
+                self._numberPattern = format.pattern; // Use this pattern to apply to axis numbers 
+                self.numberFormats.push({col: 1, prefix: format.prefix, suffix: format.suffix, groupingSymbol:',', fractionDigits: format.decimalPlaces});
+              }
+            }
+            var value = item.value || item.value === 0 ? self.$.utility.unformatString(item.value) : null;
+          return [item.label, value];
         });
 
         //TODO: does this doe anything? or just copied here from th-google-region code? remove?
         self._data.unshift(["Data Point", self.dataLabel]);
+
+        if (self.numberPattern){
+          self.numberFormats = [{col: 1, pattern: self.numberPattern}];
+        }
    
       },
       /**
@@ -117,6 +135,7 @@ Element providing a Thelma wrapper for the Google geochart.
        */
       updateData: function() {
         this.reformatData();
+        this.configureOptions();
       },
       /**
        * 'configureOptions' sets the appropriate options properties for the map, given the attribute values
@@ -132,9 +151,6 @@ Element providing a Thelma wrapper for the Google geochart.
         self._slices = self.chartData.map(function(item, index) {
           item.color = colors.accents[index];
           item.offset = item.split;
-          // delete item.label;
-          // delete item.value;
-          // delete item.split;
           return item;
         });
 
@@ -144,9 +160,9 @@ Element providing a Thelma wrapper for the Google geochart.
           tooltip: { trigger: 'selection', text: self.tooltipText, textStyle: { color: "black", fontName: colors.theme.font, fontSize: '0.85em'}},
           colorAxis: { colors: [self.color] },
           backgroundColor: {fill: self.backgroundColor},
-          chartArea:{width:'80%',height:'80%'},
+          chartArea:{left:'auto',top:'auto', width: self.chartAreaWidth, height:self.chartAreaHeight},
           legend: { 
-            numberFormat: self.numberFormat,
+            numberFormat: self.numberPattern || self._numberPattern || "#,###.##", // numberPattern is exposed as an attribute and _numberPattern is the pattern extracted from data
             textStyle: { 
               color: colors.theme.foreground1, 
               fontName: colors.theme.font, 
