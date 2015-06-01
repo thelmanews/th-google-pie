@@ -15,7 +15,7 @@ Element providing a Thelma wrapper for the Google geochart.
 @status alpha
 @homepage http://nishacodes.github.io/th-google-regions
 -->
-<polymer-element name="th-google-pie"  extends="th-d3-chart" attributes="input output tooltipText type chartData dataLabel color backgroundColor legend numberPattern chartAreaWidth chartAreaHeight">
+<polymer-element name="th-google-pie"  extends="th-d3-chart" attributes="input output tooltipText type chartData dataLabel  backgroundColor legend numberPattern chartAreaWidth chartAreaHeight">
   <template> 
     <core-style ref="theme"></core-style>
     <th-data-utility id="utility"></th-data-utility>  
@@ -35,11 +35,7 @@ Element providing a Thelma wrapper for the Google geochart.
        ** 'chartData' is the data represented by the map. 
        * @type {Array}
        *
-       ** 'region' can be a country, state, or metro 
-       * @type {String}
-       *
-       ** 'value' determines the color of the marker or fill
-       * @type {Number}
+       * @properties: label (string), value (number), color (string)
        */
       chartData: [
         {"label": "Germany", "value": 100},
@@ -74,11 +70,6 @@ Element providing a Thelma wrapper for the Google geochart.
        * @type {String}
        */
       backgroundColor: "",
-      /**
-       * 'color' determines the range of the fill color of the regions
-       * @type {String}
-       */
-      color: "",
       /**
        * 'legend' determines whether or not to display a legend
        * @type {Boolean}
@@ -144,12 +135,11 @@ Element providing a Thelma wrapper for the Google geochart.
         var self = this,
             colors =  self.getColors();
         // Determine intermediate variables
-        self.color = self.color || colors.accents[0];
         self.backgroundColor = self.backgroundColor || "none";
         self.minValue = self.minValue || 0;
 
         self._slices = self.chartData.map(function(item, index) {
-          item.color = colors.accents[index];
+          item.color = item.color || colors.accents[index];
           item.offset = item.split;
           return item;
         });
@@ -158,7 +148,6 @@ Element providing a Thelma wrapper for the Google geochart.
         // Define chart options 
         self.options = {
           tooltip: { trigger: 'selection', text: self.tooltipText, textStyle: { color: "black", fontName: colors.theme.font, fontSize: '0.85em'}},
-          colorAxis: { colors: [self.color] },
           backgroundColor: {fill: self.backgroundColor},
           chartArea:{left:'auto',top:'auto', width: self.chartAreaWidth, height:self.chartAreaHeight},
           legend: { 
