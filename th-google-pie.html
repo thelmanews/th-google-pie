@@ -91,7 +91,7 @@ Element providing a Thelma wrapper for the Google geochart.
         var self = this; 
         
         self._data = self.chartData.map(function(item){
-          return [item.label, item.value];
+          return [item.label, parseFloat(item.value)];
         });
 
         self._data.unshift(["Data Point", self.dataLabel]);
