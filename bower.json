@@ -10,8 +10,6 @@
   "dependencies": {
     "polymer": "Polymer/polymer#~0.5.1",
     "th-animated": "https://github.com/thelmanews/th-animated.git",
-    "google-chart": "GoogleWebComponents/google-chart#master",
-    "th-u-data-selector": "thelmanews/th-u-data-selector",
-    "th-data-utility": "thelmanews/th-data-utility"
+    "google-chart": "GoogleWebComponents/google-chart#master"
   }
 }
