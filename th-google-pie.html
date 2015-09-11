@@ -1,8 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../th-animated/th-animated.html">
 <link rel="import" href="../google-chart/google-chart.html">
-<link rel="import" href="../th-data-utility/th-data-utility.html">
-
 <!--
 Element providing a Thelma wrapper for the Google geochart.
 
@@ -18,7 +16,6 @@ Element providing a Thelma wrapper for the Google geochart.
 <polymer-element name="th-google-pie"  extends="th-d3-chart" attributes="input output tooltipText type chartData dataLabel  backgroundColor legend numberPattern chartAreaWidth chartAreaHeight">
   <template> 
     <core-style ref="theme"></core-style>
-    <th-data-utility id="utility"></th-data-utility>  
     <google-chart id="googleChart" on-google-chart-render="{{chartReady}}" selection="{{selection}}" style="width:100%; height: 100%;"
           type='pie'
           options= "{{options}}"
@@ -98,26 +95,13 @@ Element providing a Thelma wrapper for the Google geochart.
        * 'reformatData' converts chartData into the correct data structure for the map
        */
       reformatData: function(){
-        var self = this;        
-        self._data = self.chartData.map(function(item, index){
-          if (index === 0){
-              // Extract the number format of the first row of data and apply to tooltips
-              var format = self.$.utility.extractNumberFormat(item.value);
-              if (format){
-                self._numberPattern = format.pattern; // Use this pattern to apply to axis numbers 
-                self.numberFormats.push({col: 1, prefix: format.prefix, suffix: format.suffix, groupingSymbol:',', fractionDigits: format.decimalPlaces});
-              }
-            }
-            var value = item.value || item.value === 0 ? self.$.utility.unformatString(item.value) : null;
-          return [item.label, value];
+        var self = this; 
+        
+        self._data = self.chartData.map(function(item){
+          return [item.label, parseFloat(item.value)];
         });
 
-        //TODO: does this doe anything? or just copied here from th-google-region code? remove?
         self._data.unshift(["Data Point", self.dataLabel]);
-
-        if (self.numberPattern){
-          self.numberFormats = [{col: 1, pattern: self.numberPattern}];
-        }
    
       },
       /**
@@ -201,6 +185,9 @@ Element providing a Thelma wrapper for the Google geochart.
         colors.count = colors.accents.length;
 
         return colors;
+      },
+      displayFilter: function(value){
+        return value ? "inline-block" : "none";
       }
 
     });
